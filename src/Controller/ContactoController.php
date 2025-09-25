@@ -31,6 +31,13 @@ class ContactoController extends AbstractController
             $html .= "</ul>";
             return new Response("<html><body>$html</body></html>");
         }
+
+        $contacto = ($this->contactos[$codigo] ?? null);
+
+        if ($contacto){
+            return $this->render('contacto/ficha_contacto.html.twig', ["contacto" => $contacto]);
+        }
+
         return new Response("<html><body>Contacto $codigo no encontrado</body></html>");
     }
 }
