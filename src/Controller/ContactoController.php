@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Entity\Contacto;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,13 +19,31 @@ class ContactoController extends AbstractController
         7 => ["nombre" => "Laura Martínez", "telefono" => "42898966", "email" => "lm2000@ieselcaminas.org"],
         9 => ["nombre" => "Nora Jover", "telefono" => "54565859", "email" => "norajover@ieselcaminas.org"]
     ];
+    #[Route('/contacto/insertar', name: 'insertar')]
+    public function insertar(ManagerRegistry $doctrine){
+        $entityManager = $doctrine->getManager();
+        foreach ($this->contactos as $c){
+            $contacto = new Contacto();
+            $contacto->setNombre($c["nombre"]);
+            $contacto->setTelefono($c["telefono"]);
+            $contacto->setEmail($c["email"]);
+            $entityManager->persist($contacto);
+        }
+        try {
+            $entityManager->flush();
+            return new Response("Contactos insertados");
+        } catch (\Exception $e) {
+            return new Response("Error insertando objetos");
+        }
+    }
+
     #[Route('/contacto/{codigo?1}', name: 'ficha_contacto')]
-    public function ficha($codigo): Response
-    {
-        $resultado = ($this->contactos[$codigo] ?? null);
+    public function ficha(ManagerRegistry $doctrine, $codigo): Response{
+        $repositorio = $doctrine->getRepository(Contacto::class);
+        $contacto = $repositorio->find($codigo);
 
         return $this->render('ficha_contacto.html.twig', [
-            'contacto' => $resultado
+            'contacto' => $contacto
         ]);
     }
 }
