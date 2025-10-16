@@ -26,7 +26,6 @@ class ContactoRepository extends ServiceEntityRepository
 
     public function findByName($text): array
     {
-
         $entityManager = $this->getEntityManager();
         $query = $entityManager->createQuery(
             'SELECT c FROM App\Entity\Contacto c WHERE c.nombre LIKE :text'
